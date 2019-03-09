@@ -11,6 +11,13 @@
 #error OPENCL_PLATFORM_ID_NOT_SET
 #endif
 
+#ifndef STAN_OPENCL_CHOLESKY_MIN_BLOCK_SIZE
+#define STAN_OPENCL_CHOLESKY_MIN_BLOCK_SIZE 256
+#endif
+#ifndef STAN_OPENCL_PARTITION
+#define STAN_OPENCL_PARTITION 4
+#endif
+
 #include <stan/math/prim/arr/err/check_opencl.hpp>
 #include <stan/math/opencl/constants.hpp>
 #include <stan/math/prim/scal/err/system_error.hpp>
@@ -143,9 +150,9 @@ class opencl_context_base {
   // TODO(Steve): Make these tunable during warmup
   struct tuning_struct {
     // Used in stan/math/opencl/cholesky_decompose
-    int cholesky_min_L11_size = 256;
-    int cholesky_partition = 4;
-    int cholesky_size_worth_transfer = 1250;
+    int cholesky_min_L11_size = STAN_OPENCL_CHOLESKY_MIN_BLOCK_SIZE;
+    int cholesky_partition = STAN_OPENCL_PARTITION;
+    int cholesky_size_worth_transfer = 999;
     // Used in math/rev/mat/fun/cholesky_decompose
     int cholesky_rev_min_block_size = 512;
     int cholesky_rev_block_partition = 8;
