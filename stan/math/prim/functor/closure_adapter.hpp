@@ -3,6 +3,7 @@
 
 #include <stan/math/prim/meta/is_stan_closure.hpp>
 #include <stan/math/prim/meta/return_type.hpp>
+#include <stan/math/prim/functor/serializer.hpp>
 #include <ostream>
 
 namespace stan {
@@ -35,6 +36,9 @@ struct empty_closure {
   Vari** save_varis(Vari** dest) const {
     return dest;
   }
+
+  void serialize_data__(serializer& st) const {}
+  void serialize__(serializer& st) const {}
 };
 
 /**
@@ -67,7 +71,31 @@ struct one_arg_closure {
   Vari** save_varis__(Vari** dest) const {
     return save_varis(dest, s_);
   }
+
+  void serialize_data__(serializer& st) const { st.pack_data(s_); }
+  void serialize__(serializer& st) const { st.pack_vars(s_); }
 };
+
+}  // namespace internal
+
+template <typename F>
+struct cached_t<internal::empty_closure<F>, void, void> {
+  cached_t(serializer& st) {}
+  auto instantiate(serializer& st) const {
+    return internal::empty_closure<F>(F());
+  }
+};
+
+template <bool Ref, typename F, typename T>
+struct cached_t<internal::one_arg_closure<Ref, F, T>, void, void> {
+  cached_t<T> s_;
+  cached_t(serializer& st) : s_(cached_t<T>(st)) {}
+  auto instantiate(serializer& st) const {
+    return internal::one_arg_closure<false, F, T>(F(), s_.instantiate(st));
+  }
+};
+
+namespace internal {
 
 /**
  * A closure that takes rng argument.
@@ -156,7 +184,8 @@ struct empty_closure_lp {
 };
 
 /**
- * Higher-order functor suitable for calling a closure inside variadic ODE solvers.
+ * Higher-order functor suitable for calling a closure inside variadic ODE
+ * solvers.
  */
 struct ode_closure_adapter {
   template <typename F, typename T0, typename T1, typename... Args>

@@ -25,5 +25,6 @@
 #include <stan/math/prim/functor/operands_and_partials.hpp>
 #include <stan/math/prim/functor/reduce_sum.hpp>
 #include <stan/math/prim/functor/reduce_sum_static.hpp>
+#include <stan/math/prim/functor/serializer.hpp>
 
 #endif
