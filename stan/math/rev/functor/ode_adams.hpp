@@ -77,7 +77,7 @@ ode_adams_tol_impl(const char* function_name, const F& f, const T_y0& y0,
                    double relative_tolerance, double absolute_tolerance,
                    long int max_num_steps,  // NOLINT(runtime/int)
                    std::ostream* msgs, const T_Args&... args) {
-  internal::ode_closure_adapter f_adapter;
+  ode_closure_adapter f_adapter;
   return ode_adams_tol_impl(function_name, f_adapter, y0, t0, ts,
                             relative_tolerance, absolute_tolerance,
                             max_num_steps, msgs, f, args...);
